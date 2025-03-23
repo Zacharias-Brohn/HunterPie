@@ -8,9 +8,12 @@ on:
     branches:
       - 'release/v2.12.0'
       
-defaults:
-  run:
-    shell: bash
+env:
+  SOLUTION_FILE_PATH: ./HunterPie.sln
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -20,43 +23,21 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        submodules: recursive
         fetch-depth: 0
+        persist-credentials: false
 
-    - name: Setup dotnet
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0
-    
-    - name: Setup MSBuild.exe
+    - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore packages
-      shell: pwsh
-      run: dotnet restore
+    - name: Restore NuGet packages
+      run: nuget restore ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Build HunterPie
-      shell: pwsh
-      run: msbuild HunterPie/HunterPie.csproj /p:Configuration=Release
+    - name: Build
+      run: msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} ${{ env.SOLUTION_FILE_PATH }}
 
-    - name: Build HunterPie.Native
-      shell: pwsh
-      run: msbuild HunterPie.Native/HunterPie.Native.vcxproj /p:Configuration=Release
-
-    - name: Build HunterPie.Core
-      shell: pwsh
-      run: msbuild HunterPie.Core/HunterPie.Core.csproj /p:Configuration=Release
-
-    - name: Build HunterPie.Integrations
-      shell: pwsh
-      run: msbuild HunterPie.Integrations/HunterPie.Integrations.csproj /p:Configuration=Release
-
-    - name: Build HunterPie.UI
-      shell: pwsh
-      run: msbuild HunterPie.UI/HunterPie.UI.csproj /p:Configuration=Release
-
-    - name: Upload build artifacts
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build-artifacts
-        path: |
-          **/*
+        name: ${{ env.BUILD_CONFIGURATION }}
+        path: ./HunterPie/bin/${{ env.BUILD_CONFIGURATION }}/**/
