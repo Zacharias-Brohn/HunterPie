@@ -27,8 +27,32 @@ jobs:
       with:
         dotnet-version: 8.0
     
-    - name: Build project
-      run: dotnet build HunterPie --configuration Release --nologo -v diag --property WarningLevel=4 /clp:Summary
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore packages
+      shell: pwsh
+      run: dotnet restore
+
+    - name: Build HunterPie
+      shell: pwsh
+      run: msbuild HunterPie/HunterPie.csproj /p:Configuration=Release
+
+    - name: Build HunterPie.Native
+      shell: pwsh
+      run: msbuild HunterPie.Native/HunterPie.Native.vcxproj /p:Configuration=Release
+
+    - name: Build HunterPie.Core
+      shell: pwsh
+      run: msbuild HunterPie.Core/HunterPie.Core.csproj /p:Configuration=Release
+
+    - name: Build HunterPie.Integrations
+      shell: pwsh
+      run: msbuild HunterPie.Integrations/HunterPie.Integrations.csproj /p:Configuration=Release
+
+    - name: Build HunterPie.UI
+      shell: pwsh
+      run: msbuild HunterPie.UI/HunterPie.UI.csproj /p:Configuration=Release
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
