@@ -34,4 +34,11 @@ jobs:
 
     - name: Build apps
       shell: pwsh
-      run: msbuild -m /p:Configuration=Debug
+      run: msbuild -m /p:Configuration=Release
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          **/*.exe
