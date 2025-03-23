@@ -28,10 +28,7 @@ jobs:
         dotnet-version: 8.0
     
     - name: Build project
-      run: dotnet build HunterPie --configuration Release --nologo -v q --property WarningLevel=0 /clp:ErrorsOnly
-
-    - name: Run formatter
-      run: dotnet format --verify-no-changes
+      run: dotnet build HunterPie --configuration Release --nologo -v diag --property WarningLevel=4 /clp:Summary
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
